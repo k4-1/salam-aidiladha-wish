@@ -372,6 +372,8 @@
         LAND: "#4b4c4d"
       };
 
+      const SHARE_URL = "https://salam-aidiladha-wish.netlify.app/";
+
       const PIXEL_FONT = {
         A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
         D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
@@ -861,7 +863,8 @@
           const file = new File([blob], `salam-aidiladha-score-${game.score}.png`, { type: "image/png" });
           const shareData = {
             title: "Salam Aidiladha",
-            text: `Saya dapat score ${game.score} dalam kad Aidiladha ni.`,
+            text: `Saya dapat score ${game.score} dalam game kad Aidiladha ni.\n\nJom cuba game kad Aidiladha ni dan kongsi score anda juga.`,
+            url: SHARE_URL,
             files: [file]
           };
 
