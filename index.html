@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Salam Aidiladha</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #343536;
+      --paper: #f7f7f7;
+      --soft: #8d8d8d;
+      --line: #343536;
+      --quiet: #dedede;
+      --zinc-bold: #27272a;
+      --zinc-light: #71717a;
+      --card-x-pad: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      overflow-x: hidden;
+      -webkit-font-smoothing: none;
+      text-rendering: geometricPrecision;
+    }
+
+    .card {
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+      height: 100svh;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      gap: clamp(8px, 1.6svh, 14px);
+      padding: max(clamp(12px, 2.4svh, 22px), env(safe-area-inset-top)) var(--card-x-pad) max(clamp(12px, 2svh, 18px), env(safe-area-inset-bottom));
+      background: var(--paper);
+      overflow: hidden;
+    }
+
+    .greeting {
+      text-align: center;
+      padding-top: 4px;
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 100%;
+      line-height: 0;
+    }
+
+    .pixel-title-svg {
+      display: block;
+      width: min(88vw, 276px);
+      height: auto;
+      margin-inline: auto;
+      image-rendering: pixelated;
+    }
+
+    .wish {
+      margin: 8px 0 0;
+      color: var(--zinc-light);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: clamp(0.78rem, 3.2vw, 1rem);
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .counter {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      min-height: clamp(68px, 11svh, 96px);
+      color: var(--zinc-light);
+      font-size: 0.78rem;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .counter strong {
+      color: var(--zinc-bold);
+      font-size: clamp(2.25rem, 9svh, 5rem);
+      font-weight: 900;
+      line-height: 0.85;
+    }
+
+    .counter-label,
+    .counter-miss {
+      color: var(--zinc-light);
+      font-size: clamp(0.72rem, 3vw, 0.95rem);
+      line-height: 1;
+    }
+
+    .stage-wrap {
+      display: grid;
+      align-items: center;
+      justify-items: center;
+      margin-inline: calc(var(--card-x-pad) * -1);
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      aspect-ratio: 720 / 520;
+      border: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      touch-action: manipulation;
+    }
+
+    .message {
+      position: absolute;
+      inset: auto 16px 18px;
+      display: none;
+      padding: 10px 12px;
+      border: 3px solid var(--line);
+      background: var(--paper);
+      text-align: center;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .message.is-visible {
+      display: block;
+    }
+
+    .controls {
+      display: grid;
+      place-items: center;
+      min-height: clamp(72px, 11svh, 92px);
+    }
+
+    .jump-button {
+      width: min(24vw, 104px);
+      height: min(24vw, 104px);
+      min-width: 78px;
+      min-height: 78px;
+      border: 4px solid var(--line);
+      border-radius: 50%;
+      background: var(--paper);
+      color: var(--ink);
+      box-shadow: 0 7px 0 var(--line);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 800;
+      line-height: 1.1;
+      text-transform: uppercase;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .jump-button:active {
+      transform: translateY(5px);
+      box-shadow: 0 2px 0 var(--line);
+    }
+
+    .jump-button:focus-visible {
+      outline: 4px solid var(--soft);
+      outline-offset: 5px;
+    }
+
+    .sr-status {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .sr-only-text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (min-width: 700px) {
+      body {
+        min-height: 100vh;
+      }
+
+      .card {
+        height: 100vh;
+      }
+    }
+
+    @media (max-width: 540px) {
+      body {
+        place-items: center start;
+      }
+
+      .card {
+        width: 100vw;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-label="Kad ucapan Aidiladha dengan permainan mini">
+    <header class="greeting">
+      <h1>
+        <span class="sr-only-text">SALAM AIDILADHA</span>
+        <svg id="pixelHeadline" class="pixel-title-svg" aria-hidden="true"></svg>
+      </h1>
+      <p class="wish">kepada seluruh umat Islam</p>
+    </header>
+
+    <section class="counter" aria-label="Kaunter markah">
+      <span class="counter-label">Score</span>
+      <strong id="scoreValue">0</strong>
+      <span id="dangerValue" class="counter-miss">Miss 0/5</span>
+    </section>
+
+    <section class="stage-wrap">
+      <div class="stage">
+        <canvas id="gameCanvas" width="720" height="520" aria-label="Permainan lembu lompat pagar" role="img"></canvas>
+        <div id="gameMessage" class="message" role="status"></div>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="Kawalan permainan">
+      <button id="jumpButton" class="jump-button" type="button" aria-label="Lompatkan lembu">Lompat</button>
+    </section>
+
+    <p id="statusText" class="sr-status" aria-live="polite">Score 0. Miss streak 0 of 5.</p>
+  </main>
+
+  <script>
+    (() => {
+      const CONFIG = {
+        WIDTH: 720,
+        HEIGHT: 520,
+        GROUND_Y: 388,
+        GRAVITY: 2100,
+        JUMP_FORCE: -760,
+        FENCE_SPEED: 360,
+        SPEED_GAIN: 8,
+        SPAWN_MIN: 1.05,
+        SPAWN_MAX: 1.55,
+        MISS_LIMIT: 5,
+        HIT_SHAKE_DURATION: 0.32,
+        HIT_SHAKE_DISTANCE: 14,
+        CHASER_EASE: 3.8,
+        COW_X: 324,
+        COW_W: 72,
+        COW_H: 54,
+        FENCE_W: 34,
+        FENCE_MIN_H: 56,
+        FENCE_MAX_H: 78
+      };
+
+      const PALETTE = {
+        SKY: "#f7f7f7",
+        INK: "#343536",
+        TITLE: "#27272a",
+        MIST: "#dedede",
+        SOFT: "#b9b9b9",
+        PAPER: "#ffffff",
+        LAND: "#4b4c4d"
+      };
+
+      const PIXEL_FONT = {
+        A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
+        D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
+        E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
+        H: ["10001", "10001", "10001", "11111", "10001", "10001", "10001"],
+        I: ["11111", "00100", "00100", "00100", "00100", "00100", "11111"],
+        L: ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
+        M: ["10001", "11011", "10101", "10101", "10001", "10001", "10001"],
+        S: ["01111", "10000", "10000", "01110", "00001", "00001", "11110"]
+      };
+
+      function renderPixelHeadline() {
+        const svg = document.getElementById("pixelHeadline");
+        const text = "SALAM AIDILADHA";
+        const pixel = 4;
+        const gap = 1;
+        const letterGap = 2;
+        const spaceWidth = 4;
+        let cursor = 0;
+
+        svg.textContent = "";
+        svg.setAttribute("role", "presentation");
+
+        for (const character of text) {
+          if (character === " ") {
+            cursor += (spaceWidth + letterGap) * (pixel + gap);
+            continue;
+          }
+
+          const glyph = PIXEL_FONT[character];
+          for (let row = 0; row < glyph.length; row += 1) {
+            for (let col = 0; col < glyph[row].length; col += 1) {
+              if (glyph[row][col] !== "1") continue;
+              const block = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+              block.setAttribute("x", cursor + col * (pixel + gap));
+              block.setAttribute("y", row * (pixel + gap));
+              block.setAttribute("width", pixel);
+              block.setAttribute("height", pixel);
+              block.setAttribute("fill", PALETTE.TITLE);
+              svg.appendChild(block);
+            }
+          }
+
+          cursor += (5 + letterGap) * (pixel + gap);
+        }
+
+        const height = 7 * pixel + 6 * gap;
+        svg.setAttribute("viewBox", `0 0 ${cursor - letterGap * (pixel + gap)} ${height}`);
+      }
+
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const stageWrap = document.querySelector(".stage-wrap");
+      const stage = document.querySelector(".stage");
+      const scoreValue = document.getElementById("scoreValue");
+      const dangerValue = document.getElementById("dangerValue");
+      const statusText = document.getElementById("statusText");
+      const gameMessage = document.getElementById("gameMessage");
+      const jumpButton = document.getElementById("jumpButton");
+
+      const game = {
+        score: 0,
+        missStreak: 0,
+        successStreak: 0,
+        shakeTimer: 0,
+        visualChaserX: 86,
+        running: true,
+        lastTime: 0,
+        spawnTimer: 0.8,
+        fences: [],
+        cow: {
+          x: CONFIG.COW_X,
+          y: CONFIG.GROUND_Y - CONFIG.COW_H,
+          vy: 0,
+          grounded: true
+        }
+      };
+
+      function setStageSize() {
+        const wrapWidth = stageWrap.clientWidth;
+        const wrapHeight = stageWrap.clientHeight;
+        const maxWidthFromHeight = wrapHeight * (CONFIG.WIDTH / CONFIG.HEIGHT);
+        const stageWidth = Math.floor(Math.min(wrapWidth, maxWidthFromHeight));
+        const stageHeight = Math.floor(stageWidth * (CONFIG.HEIGHT / CONFIG.WIDTH));
+
+        stage.style.width = `${stageWidth}px`;
+        stage.style.height = `${stageHeight}px`;
+      }
+
+      function setCanvasSize() {
+        setStageSize();
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = CONFIG.WIDTH * ratio;
+        canvas.height = CONFIG.HEIGHT * ratio;
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+      }
+
+      function randomSpawnDelay() {
+        return CONFIG.SPAWN_MIN + Math.random() * (CONFIG.SPAWN_MAX - CONFIG.SPAWN_MIN);
+      }
+
+      function updateStatus() {
+        scoreValue.textContent = String(game.score);
+        dangerValue.textContent = `Miss ${game.missStreak}/${CONFIG.MISS_LIMIT}`;
+        statusText.textContent = `Score ${game.score}. Miss streak ${game.missStreak} of ${CONFIG.MISS_LIMIT}.`;
+      }
+
+      function jumpCow() {
+        if (!game.running) {
+          resetGame();
+          return;
+        }
+
+        if (game.cow.grounded) {
+          game.cow.vy = CONFIG.JUMP_FORCE;
+          game.cow.grounded = false;
+        }
+      }
+
+      function registerFenceClear(fence) {
+        fence.resolved = true;
+        game.score += 1;
+        game.successStreak += 1;
+        game.missStreak = Math.max(0, game.missStreak - 1);
+        updateStatus();
+      }
+
+      function registerFenceMiss(fence) {
+        fence.resolved = true;
+        game.successStreak = 0;
+        game.missStreak += 1;
+        game.shakeTimer = CONFIG.HIT_SHAKE_DURATION;
+        updateStatus();
+
+        if (game.missStreak >= CONFIG.MISS_LIMIT) {
+          game.running = false;
+          gameMessage.textContent = "Lembu tertangkap. Tap Cuba untuk cuba lagi.";
+          gameMessage.classList.add("is-visible");
+          jumpButton.textContent = "Cuba";
+        }
+      }
+
+      function resetGame() {
+        game.score = 0;
+        game.missStreak = 0;
+        game.successStreak = 0;
+        game.shakeTimer = 0;
+        game.visualChaserX = chaserX();
+        game.running = true;
+        game.spawnTimer = 0.8;
+        game.fences = [];
+        game.cow.y = CONFIG.GROUND_Y - CONFIG.COW_H;
+        game.cow.vy = 0;
+        game.cow.grounded = true;
+        gameMessage.classList.remove("is-visible");
+        jumpButton.textContent = "Lompat";
+        updateStatus();
+      }
+
+      function spawnFence() {
+        const height = CONFIG.FENCE_MIN_H + Math.floor(Math.random() * (CONFIG.FENCE_MAX_H - CONFIG.FENCE_MIN_H));
+        game.fences.push({
+          x: CONFIG.WIDTH + 20,
+          y: CONFIG.GROUND_Y - height,
+          width: CONFIG.FENCE_W,
+          height,
+          resolved: false
+        });
+      }
+
+      function chaserX() {
+        if (game.successStreak >= 5 && game.missStreak === 0) {
+          return -120;
+        }
+
+        const closeIn = game.missStreak * 36;
+        const fallBack = Math.min(game.successStreak, 4) * 24;
+        return game.cow.x - 238 + closeIn - fallBack;
+      }
+
+      function updateGame(delta) {
+        const cow = game.cow;
+        cow.vy += CONFIG.GRAVITY * delta;
+        cow.y += cow.vy * delta;
+
+        const floorY = CONFIG.GROUND_Y - CONFIG.COW_H;
+        if (cow.y >= floorY) {
+          cow.y = floorY;
+          cow.vy = 0;
+          cow.grounded = true;
+        }
+
+        game.shakeTimer = Math.max(0, game.shakeTimer - delta);
+        game.visualChaserX += (chaserX() - game.visualChaserX) * Math.min(1, CONFIG.CHASER_EASE * delta);
+
+        if (!game.running) {
+          return;
+        }
+
+        const speed = CONFIG.FENCE_SPEED + game.score * CONFIG.SPEED_GAIN;
+        game.spawnTimer -= delta;
+        if (game.spawnTimer <= 0) {
+          spawnFence();
+          game.spawnTimer = randomSpawnDelay();
+        }
+
+        for (const fence of game.fences) {
+          fence.x -= speed * delta;
+
+          const cowFront = cow.x + CONFIG.COW_W - 6;
+          const cowBottom = cow.y + CONFIG.COW_H;
+          const fenceMid = fence.x + fence.width / 2;
+
+          if (!fence.resolved && fenceMid <= cowFront) {
+            if (cowBottom > fence.y + 8) {
+              registerFenceMiss(fence);
+            } else {
+              registerFenceClear(fence);
+            }
+          }
+        }
+
+        game.fences = game.fences.filter((fence) => fence.x + fence.width > -30);
+      }
+
+      function rect(x, y, w, h) {
+        ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+      }
+
+      function drawCloud(x, y, scale = 1) {
+        ctx.fillStyle = PALETTE.MIST;
+        rect(x + 10 * scale, y + 16 * scale, 22 * scale, 4 * scale);
+        rect(x + 28 * scale, y + 10 * scale, 18 * scale, 4 * scale);
+        rect(x + 42 * scale, y + 6 * scale, 24 * scale, 4 * scale);
+        rect(x + 62 * scale, y + 12 * scale, 26 * scale, 4 * scale);
+        rect(x + 86 * scale, y + 18 * scale, 18 * scale, 4 * scale);
+        rect(x + 18 * scale, y + 20 * scale, 80 * scale, 3 * scale);
+      }
+
+      function drawLandTexture(time) {
+        const dashOffset = (time / 12) % 56;
+        ctx.fillStyle = PALETTE.LAND;
+        for (let x = -dashOffset; x < CONFIG.WIDTH; x += 56) {
+          rect(x, CONFIG.GROUND_Y + 28, 20, 3);
+          rect(x + 36, CONFIG.GROUND_Y + 34, 5, 3);
+        }
+
+        ctx.fillStyle = PALETTE.SOFT;
+        for (let x = (time / 18) % 72; x < CONFIG.WIDTH; x += 72) {
+          rect(x + 18, CONFIG.GROUND_Y + 48, 4, 4);
+          rect(x + 46, CONFIG.GROUND_Y + 16, 3, 3);
+        }
+      }
+
+      function drawCowSpots(x, y) {
+        ctx.fillStyle = PALETTE.SKY;
+        rect(x + 19, y + 22, 13, 8);
+        rect(x + 39, y + 18, 11, 9);
+        rect(x + 52, y + 29, 7, 5);
+      }
+
+      function drawCowTail(x, y) {
+        ctx.fillStyle = PALETTE.INK;
+        rect(x + 2, y + 21, 9, 4);
+        rect(x - 2, y + 18, 5, 4);
+        rect(x - 4, y + 15, 4, 4);
+      }
+
+      function drawCowHead(x, y) {
+        ctx.fillStyle = PALETTE.INK;
+        rect(x + 47, y + 12, 23, 22);
+        rect(x + 53, y + 23, 24, 11);
+        rect(x + 45, y + 7, 8, 7);
+        rect(x + 62, y + 7, 8, 7);
+        rect(x + 48, y + 6, 7, 5);
+        rect(x + 65, y + 6, 7, 5);
+        ctx.fillStyle = PALETTE.PAPER;
+        rect(x + 58, y + 17, 4, 4);
+        rect(x + 69, y + 27, 5, 3);
+      }
+
+      function drawCowUdder(x, y) {
+        ctx.fillStyle = PALETTE.SOFT;
+        rect(x + 34, y + 40, 12, 6);
+        rect(x + 36, y + 46, 3, 4);
+        rect(x + 42, y + 46, 3, 4);
+      }
+
+      function drawCow(x, y, step) {
+        ctx.fillStyle = PALETTE.INK;
+        rect(x + 9, y + 18, 47, 24);
+        rect(x + 15, y + 13, 31, 8);
+        rect(x + 13, y + 41, 8, 15 + step);
+        rect(x + 48, y + 41, 8, 15 - step);
+        rect(x + 24, y + 40, 7, 12 - step);
+        rect(x + 39, y + 40, 7, 12 + step);
+        drawCowTail(x, y);
+        drawCowHead(x, y);
+        drawCowSpots(x, y);
+        drawCowUdder(x, y);
+      }
+
+      function drawSongkok(x, y) {
+        ctx.fillStyle = PALETTE.INK;
+        rect(x + 18, y, 30, 10);
+        rect(x + 16, y + 9, 34, 6);
+        ctx.fillStyle = PALETTE.SOFT;
+        rect(x + 23, y + 3, 20, 2);
+      }
+
+      function drawChaserFace(x, y) {
+        ctx.fillStyle = PALETTE.INK;
+        rect(x + 20, y + 15, 28, 25);
+        rect(x + 43, y + 24, 12, 7);
+        rect(x + 30, y + 37, 18, 6);
+        ctx.fillStyle = PALETTE.SKY;
+        rect(x + 40, y + 21, 5, 5);
+        rect(x + 48, y + 29, 4, 3);
+      }
+
+      function drawChasingArm(x, y, step) {
+        ctx.fillStyle = PALETTE.INK;
+        rect(x + 48, y + 43 + Math.max(0, step), 24, 8);
+        rect(x + 68, y + 39 + Math.max(0, step), 9, 8);
+        rect(x + 10, y + 45 - Math.min(0, step), 14, 8);
+      }
+
+      function drawChaser(x, groundY, step) {
+        const y = groundY - 96;
+        drawSongkok(x, y);
+        drawChaserFace(x, y);
+        ctx.fillStyle = PALETTE.INK;
+        rect(x + 19, y + 46, 31, 38);
+        rect(x + 16, y + 83, 9, 13 + step);
+        rect(x + 39, y + 83, 9, 13 - step);
+        rect(x + 12, y + 94 + step, 15, 5);
+        rect(x + 36, y + 94 - step, 15, 5);
+        drawChasingArm(x, y, step);
+        ctx.fillStyle = PALETTE.SKY;
+        rect(x + 27, y + 55, 15, 4);
+        ctx.fillStyle = PALETTE.SOFT;
+        rect(x + 23, y + 66, 23, 3);
+        rect(x + 23, y + 75, 23, 3);
+      }
+
+      function drawFencePattern(fence) {
+        ctx.fillStyle = PALETTE.INK;
+        rect(fence.x, fence.y, 7, fence.height);
+        rect(fence.x + fence.width - 7, fence.y + 6, 7, fence.height - 6);
+        rect(fence.x - 5, fence.y + 15, fence.width + 10, 6);
+        rect(fence.x - 5, fence.y + 36, fence.width + 10, 6);
+        ctx.fillStyle = PALETTE.SKY;
+        rect(fence.x + 10, fence.y + 20, 6, 12);
+        rect(fence.x + 20, fence.y + 43, 5, 11);
+      }
+
+      function drawFence(fence) {
+        drawFencePattern(fence);
+      }
+
+      function drawGround(time) {
+        ctx.fillStyle = PALETTE.LAND;
+        rect(0, CONFIG.GROUND_Y, CONFIG.WIDTH, 4);
+        ctx.fillStyle = PALETTE.MIST;
+        rect(0, CONFIG.GROUND_Y + 4, CONFIG.WIDTH, 2);
+        drawLandTexture(time);
+      }
+
+      function drawBackground(time) {
+        ctx.fillStyle = PALETTE.SKY;
+        rect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
+        drawCloud(508, 72, 1);
+        drawCloud(70, 112, 0.75);
+        ctx.fillStyle = PALETTE.MIST;
+        rect(282, 128, 10, 2);
+        rect(284, 146, 12, 2);
+        rect(604, 196, 6, 2);
+        drawGround(time);
+      }
+
+      function drawGame(time) {
+        drawBackground(time);
+
+        const shakeProgress = game.shakeTimer / CONFIG.HIT_SHAKE_DURATION;
+        const shake = game.shakeTimer > 0
+          ? Math.round(Math.sin(time / 18) * CONFIG.HIT_SHAKE_DISTANCE * shakeProgress)
+          : 0;
+        const walkStep = Math.round(Math.sin(time / 95) * 5);
+        drawChaser(game.visualChaserX, CONFIG.GROUND_Y, walkStep);
+        ctx.save();
+        ctx.translate(shake, 0);
+        drawCow(game.cow.x, game.cow.y, walkStep);
+        ctx.restore();
+
+        for (const fence of game.fences) {
+          drawFence(fence);
+        }
+
+        if (!game.running) {
+          ctx.fillStyle = "rgba(247,247,247,0.82)";
+          rect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
+          ctx.fillStyle = PALETTE.INK;
+          ctx.font = "800 34px ui-monospace, monospace";
+          ctx.textAlign = "center";
+          ctx.fillText("GAME OVER", CONFIG.WIDTH / 2, 176);
+          ctx.font = "700 20px ui-monospace, monospace";
+          ctx.fillText("Selamat Hari Raya Aidiladha", CONFIG.WIDTH / 2, 220);
+          ctx.textAlign = "start";
+        }
+      }
+
+      function frame(now) {
+        if (!game.lastTime) {
+          game.lastTime = now;
+        }
+
+        const delta = Math.min((now - game.lastTime) / 1000, 0.04);
+        game.lastTime = now;
+        updateGame(delta);
+        drawGame(now);
+        requestAnimationFrame(frame);
+      }
+
+      jumpButton.addEventListener("click", jumpCow);
+      canvas.addEventListener("click", jumpCow);
+      window.addEventListener("keydown", (event) => {
+        if (event.code === "Space" || event.code === "ArrowUp") {
+          event.preventDefault();
+          jumpCow();
+        }
+      });
+      window.addEventListener("resize", setCanvasSize);
+
+      window.__aidiladhaGame = {
+        game,
+        CONFIG,
+        jumpCow,
+        registerFenceMiss,
+        registerFenceClear,
+        chaserX,
+        updateGame,
+        resetGame
+      };
+
+      renderPixelHeadline();
+      setCanvasSize();
+      updateStatus();
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
