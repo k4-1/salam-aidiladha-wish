@@ -4,6 +4,11 @@
   functions = "netlify/functions"
 
 [[redirects]]
+  from = "/s/:score"
+  to = "/.netlify/functions/record?score=:score"
+  status = 200
+
+[[redirects]]
   from = "/record"
   to = "/.netlify/functions/record"
   status = 200

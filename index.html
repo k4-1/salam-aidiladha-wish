@@ -823,22 +823,26 @@
         });
       }
 
-      function shareCaption() {
-        return `Selamat Hari Raya Aidiladha. Semoga ibadah korban dan semangat pengorbanan kita pada tahun ini membawa keberkatan, keampunan, dan kebahagiaan yang berpanjangan buat kita sekeluarga.\n\nSaya dapat score ${game.score} dalam game kad Aidiladha, dan sekarang saya challenge kamu untuk beat score saya.\n\nJom cuba kalahkan score saya dan kongsi score anda juga.\n${SHARE_URL}`;
+      function shareCaptionText() {
+        return `Selamat Hari Raya Aidiladha. Semoga ibadah korban dan semangat pengorbanan kita pada tahun ini membawa keberkatan, keampunan, dan kebahagiaan yang berpanjangan buat kita sekeluarga.\n\nSaya dapat score ${game.score} dalam game kad Aidiladha, dan sekarang saya challenge kamu untuk beat score saya.\n\nJom cuba kalahkan score saya dan kongsi score anda juga.`;
+      }
+
+      function shareCaption(url = recordShareUrl()) {
+        return `${shareCaptionText()}\n${url}`;
       }
 
       function recordShareUrl() {
         const score = encodeURIComponent(game.score);
-        return `${SHARE_URL}record?score=${score}`;
+        return `${SHARE_URL}s/${score}`;
       }
 
-      async function copyShareCaption() {
+      async function copyShareCaption(caption = shareCaption()) {
         if (!navigator.clipboard?.writeText) {
           return;
         }
 
         try {
-          await navigator.clipboard.writeText(shareCaption());
+          await navigator.clipboard.writeText(caption);
         } catch {
           // Some browsers only allow clipboard writes in narrower gesture windows.
         }
@@ -899,12 +903,14 @@
           }
 
           const file = new File([blob], `salam-aidiladha-score-${game.score}.png`, { type: "image/png" });
-          await copyShareCaption();
+          const shareUrl = recordShareUrl();
+          const captionText = shareCaptionText();
+          await copyShareCaption(shareCaption(shareUrl));
 
           const shareData = {
             title: "Salam Aidiladha",
-            text: shareCaption(),
-            url: SHARE_URL,
+            text: captionText,
+            url: shareUrl,
             files: [file]
           };
 
@@ -928,18 +934,20 @@
         shareButton.textContent = "...";
 
         try {
-          await copyShareCaption();
+          const shareUrl = recordShareUrl();
+          const captionText = shareCaptionText();
+          await copyShareCaption(shareCaption(shareUrl));
 
           const shareData = {
             title: "Salam Aidiladha",
-            text: shareCaption(),
-            url: recordShareUrl()
+            text: captionText,
+            url: shareUrl
           };
 
           if (navigator.share) {
             await navigator.share(shareData);
           } else {
-            window.location.href = recordShareUrl();
+            window.location.href = shareUrl;
           }
         } catch (error) {
           if (error.name !== "AbortError") {
@@ -985,6 +993,8 @@
         resetGame,
         createRecordSnapshot,
         shareRecord,
+        shareCaption,
+        shareCaptionText,
         recordShareUrl,
         shareRecordLink
       };

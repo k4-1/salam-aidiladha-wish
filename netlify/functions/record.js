@@ -19,11 +19,16 @@ function getBaseUrl(event) {
   return `${proto}://${host}`;
 }
 
-exports.handler = async (event) => {
+function getScore(event) {
   const params = event.queryStringParameters || {};
-  const score = cleanNumber(params.score, 0, 999);
+  const pathScore = (event.path || "").match(/\/s\/(\d+)(?:\/)?$/)?.[1];
+  return cleanNumber(params.score ?? pathScore, 0, 999);
+}
+
+exports.handler = async (event) => {
+  const score = getScore(event);
   const baseUrl = getBaseUrl(event);
-  const recordUrl = `${baseUrl}/record?score=${score}`;
+  const recordUrl = `${baseUrl}/s/${score}`;
   const imageUrl = `${baseUrl}/record-image.png?score=${score}`;
   const title = `Score Saya ${String(score).padStart(3, "0")} | Salam Aidiladha`;
   const description = `Selamat Hari Raya Aidiladha. Semoga ibadah korban dan semangat pengorbanan kita pada tahun ini membawa keberkatan, keampunan, dan kebahagiaan yang berpanjangan buat kita sekeluarga. Saya dapat score ${score} dalam game kad Aidiladha, dan sekarang saya challenge kamu untuk beat score saya.`;
