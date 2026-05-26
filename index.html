@@ -807,6 +807,22 @@
         });
       }
 
+      function shareCaption() {
+        return `Saya dapat score ${game.score} dalam game kad Aidiladha ni.\n\nJom cuba game kad Aidiladha ni dan kongsi score anda juga.\n${SHARE_URL}`;
+      }
+
+      async function copyShareCaption() {
+        if (!navigator.clipboard?.writeText) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(shareCaption());
+        } catch {
+          // Some browsers only allow clipboard writes in narrower gesture windows.
+        }
+      }
+
       async function createRecordSnapshot() {
         const snapshot = document.createElement("canvas");
         const snapshotCtx = snapshot.getContext("2d");
@@ -833,6 +849,9 @@
 
         writeSnapshotText(snapshotCtx, "LEMBU LOMPAT PAGAR", 540, 1398, 34, 800, PALETTE.INK);
         writeSnapshotText(snapshotCtx, "KAD UCAPAN INTERAKTIF", 540, 1460, 28, 700, PALETTE.SOFT);
+        writeSnapshotText(snapshotCtx, "JOM CUBA GAME INI", 540, 1538, 30, 900, PALETTE.INK);
+        writeSnapshotText(snapshotCtx, "salam-aidiladha-wish.netlify.app", 540, 1590, 24, 800, PALETTE.INK);
+        writeSnapshotText(snapshotCtx, "KONGSI SCORE ANDA JUGA", 540, 1632, 24, 800, PALETTE.SOFT);
         writeSnapshotText(snapshotCtx, "BUILT BY HAIKAL FADZLI", 540, 1718, 26, 800, PALETTE.SOFT);
         writeSnapshotText(snapshotCtx, "haikalfadzli.cekap.work", 540, 1762, 24, 700, PALETTE.INK);
 
@@ -861,9 +880,11 @@
           }
 
           const file = new File([blob], `salam-aidiladha-score-${game.score}.png`, { type: "image/png" });
+          await copyShareCaption();
+
           const shareData = {
             title: "Salam Aidiladha",
-            text: `Saya dapat score ${game.score} dalam game kad Aidiladha ni.\n\nJom cuba game kad Aidiladha ni dan kongsi score anda juga.`,
+            text: shareCaption(),
             url: SHARE_URL,
             files: [file]
           };

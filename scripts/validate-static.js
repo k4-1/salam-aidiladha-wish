@@ -16,7 +16,12 @@ const requiredHtml = [
   'Built by <a href="https://haikalfadzli.cekap.work"',
   'id="shareButton"',
   'async function createRecordSnapshot()',
-  'async function shareRecord()'
+  'async function shareRecord()',
+  'function shareCaption()',
+  'text: shareCaption()',
+  'navigator.clipboard.writeText(shareCaption())',
+  'JOM CUBA GAME INI',
+  'KONGSI SCORE ANDA JUGA'
 ];
 
 for (const fragment of requiredHtml) {
