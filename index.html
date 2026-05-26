@@ -221,14 +221,8 @@
       user-select: none;
     }
 
-    .share-button {
-      width: min(20vw, 82px);
-      height: min(20vw, 82px);
-      min-width: 64px;
-      min-height: 64px;
-      border-width: 3px;
-      box-shadow: 0 5px 0 var(--line);
-      font-size: 0.68rem;
+    .share-button.is-hidden {
+      display: none;
     }
 
     .jump-button:active,
@@ -336,7 +330,7 @@
     <section class="controls" aria-label="Kawalan permainan">
       <div class="action-row">
         <button id="jumpButton" class="jump-button" type="button" aria-label="Lompatkan lembu">Lompat</button>
-        <button id="shareButton" class="share-button" type="button" aria-label="Kongsi gambar rekod">Kongsi</button>
+        <button id="shareButton" class="share-button is-hidden" type="button" aria-label="Kongsi gambar rekod" disabled>Kongsi</button>
       </div>
       <p class="credit">Built by <a href="https://haikalfadzli.cekap.work" target="_blank" rel="noopener noreferrer">Haikal Fadzli</a></p>
     </section>
@@ -521,6 +515,8 @@
           gameMessage.textContent = "Lembu tertangkap. Tap Cuba untuk cuba lagi.";
           gameMessage.classList.add("is-visible");
           jumpButton.textContent = "Cuba";
+          shareButton.classList.remove("is-hidden");
+          shareButton.disabled = false;
         }
       }
 
@@ -538,6 +534,8 @@
         game.cow.grounded = true;
         gameMessage.classList.remove("is-visible");
         jumpButton.textContent = "Lompat";
+        shareButton.classList.add("is-hidden");
+        shareButton.disabled = true;
         updateStatus();
       }
 
