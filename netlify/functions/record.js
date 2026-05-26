@@ -1,5 +1,3 @@
-const BASE_URL = "https://salam-aidiladha-wish.netlify.app";
-
 function cleanNumber(value, fallback = 0, max = 999) {
   const number = Number.parseInt(value, 10);
   if (!Number.isFinite(number)) return fallback;
@@ -14,12 +12,20 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+function getBaseUrl(event) {
+  const headers = event.headers || {};
+  const host = headers["x-forwarded-host"] || headers.host || "localhost:8888";
+  const proto = headers["x-forwarded-proto"] || (host.includes("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
 exports.handler = async (event) => {
   const params = event.queryStringParameters || {};
   const score = cleanNumber(params.score, 0, 999);
   const miss = cleanNumber(params.miss, 0, 5);
-  const recordUrl = `${BASE_URL}/record?score=${score}&miss=${miss}`;
-  const imageUrl = `${BASE_URL}/record-image.svg?score=${score}&miss=${miss}`;
+  const baseUrl = getBaseUrl(event);
+  const recordUrl = `${baseUrl}/record?score=${score}&miss=${miss}`;
+  const imageUrl = `${baseUrl}/record-image.png?score=${score}&miss=${miss}`;
   const title = `Score ${String(score).padStart(3, "0")} | Salam Aidiladha`;
   const description = `Saya dapat score ${score} dalam game kad Aidiladha ni. Jom cuba kalahkan score saya dan kongsi score anda juga.`;
 
@@ -43,14 +49,15 @@ exports.handler = async (event) => {
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
   <meta property="og:image" content="${escapeHtml(imageUrl)}">
-  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
-  <meta http-equiv="refresh" content="0; url=/?from=record&score=${score}">
+  <meta http-equiv="refresh" content="1; url=/?from=record&score=${score}">
   <style>
     :root { color-scheme: only light; }
     body {

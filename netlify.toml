@@ -9,7 +9,7 @@
   status = 200
 
 [[redirects]]
-  from = "/record-image.svg"
+  from = "/record-image.png"
   to = "/.netlify/functions/record-image"
   status = 200
 

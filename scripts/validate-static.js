@@ -30,7 +30,7 @@ const requiredNetlifyConfig = [
   'functions = "netlify/functions"',
   'from = "/record"',
   'to = "/.netlify/functions/record"',
-  'from = "/record-image.svg"',
+  'from = "/record-image.png"',
   'to = "/.netlify/functions/record-image"'
 ];
 
