@@ -121,22 +121,65 @@ function text(data, value, centerX, y, scale, color) {
   }
 }
 
+function outlinedText(data, value, centerX, y, scale, color, outlineColor) {
+  const offsets = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 1]
+  ];
+
+  for (const [offsetX, offsetY] of offsets) {
+    text(data, value, centerX + offsetX * scale, y + offsetY * scale, scale, outlineColor);
+  }
+
+  text(data, value, centerX, y, scale, color);
+}
+
+function drawPreviewCow(data, x, y) {
+  rect(data, x + 10, y + 58, 190, 88, COLORS.ink);
+  rect(data, x + 44, y + 34, 132, 34, COLORS.ink);
+  rect(data, x + 200, y + 42, 78, 76, COLORS.ink);
+  rect(data, x + 226, y + 82, 60, 30, COLORS.ink);
+  rect(data, x + 178, y + 44, 24, 24, COLORS.ink);
+  rect(data, x + 270, y + 38, 24, 26, COLORS.ink);
+  rect(data, x - 10, y + 70, 26, 8, COLORS.ink);
+  rect(data, x - 22, y + 58, 12, 16, COLORS.ink);
+  rect(data, x - 30, y + 46, 10, 16, COLORS.ink);
+  rect(data, x + 206, y + 20, 12, 30, COLORS.ink);
+  rect(data, x + 190, y + 10, 30, 12, COLORS.ink);
+  rect(data, x + 184, y + 18, 12, 16, COLORS.ink);
+  rect(data, x + 252, y + 20, 12, 30, COLORS.ink);
+  rect(data, x + 252, y + 10, 30, 12, COLORS.ink);
+  rect(data, x + 278, y + 18, 12, 16, COLORS.ink);
+  rect(data, x + 224, y + 62, 10, 10, COLORS.paper);
+  rect(data, x + 46, y + 72, 48, 28, COLORS.paper);
+  rect(data, x + 112, y + 62, 42, 32, COLORS.paper);
+  rect(data, x + 154, y + 104, 28, 18, COLORS.paper);
+  rect(data, x + 70, y + 136, 38, 20, COLORS.soft);
+  rect(data, x + 48, y + 146, 24, 58, COLORS.ink);
+  rect(data, x + 170, y + 146, 24, 58, COLORS.ink);
+  rect(data, x + 92, y + 144, 22, 44, COLORS.ink);
+  rect(data, x + 136, y + 144, 22, 44, COLORS.ink);
+  rect(data, x + 38, y + 202, 48, 14, COLORS.ink);
+  rect(data, x + 162, y + 202, 48, 14, COLORS.ink);
+}
+
+function drawPreviewFence(data, x, y) {
+  rect(data, x, y, 16, 86, COLORS.ink);
+  rect(data, x + 70, y, 16, 86, COLORS.ink);
+  rect(data, x - 18, y + 30, 122, 14, COLORS.ink);
+  rect(data, x - 18, y + 68, 122, 14, COLORS.ink);
+}
+
 function drawScene(data) {
-  rect(data, 110, 452, 980, 6, COLORS.ink);
-  rect(data, 210, 384, 34, 68, COLORS.ink);
-  rect(data, 196, 374, 56, 14, COLORS.ink);
-  rect(data, 208, 356, 30, 20, COLORS.ink);
-  rect(data, 488, 374, 112, 56, COLORS.ink);
-  rect(data, 590, 360, 52, 48, COLORS.ink);
-  rect(data, 630, 382, 28, 20, COLORS.ink);
-  rect(data, 604, 378, 10, 10, COLORS.paper);
-  rect(data, 504, 430, 18, 44, COLORS.ink);
-  rect(data, 566, 430, 18, 44, COLORS.ink);
-  rect(data, 474, 386, 18, 12, COLORS.ink);
-  rect(data, 876, 370, 16, 84, COLORS.ink);
-  rect(data, 936, 370, 16, 84, COLORS.ink);
-  rect(data, 852, 404, 120, 14, COLORS.ink);
-  rect(data, 852, 438, 120, 14, COLORS.ink);
+  rect(data, 110, 454, 980, 6, COLORS.ink);
+  drawPreviewCow(data, 58, 238);
+  drawPreviewFence(data, 880, 368);
 }
 
 function crc32(buffer) {
@@ -192,8 +235,8 @@ exports.handler = async (event) => {
 
   text(data, "SALAM AIDILADHA", 600, 82, 10, COLORS.title);
   text(data, "SCORE SAYA", 600, 172, 6, COLORS.soft);
-  text(data, paddedScore, 600, 232, 28, COLORS.title);
   drawScene(data);
+  outlinedText(data, paddedScore, 600, 232, 28, COLORS.title, COLORS.paper);
   text(data, "SEKARANG SAYA CHALLENGE AWAK", 600, 516, 5, COLORS.title);
   text(data, "LARI DARI ORANG MASJID!!", 600, 560, 5, COLORS.soft);
 

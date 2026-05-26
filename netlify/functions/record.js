@@ -56,7 +56,6 @@ exports.handler = async (event) => {
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
-  <meta http-equiv="refresh" content="1; url=/?from=record&score=${score}">
   <style>
     :root { color-scheme: only light; }
     body {
@@ -69,6 +68,7 @@ exports.handler = async (event) => {
       font-family: ui-monospace, Menlo, Consolas, monospace;
       text-align: center;
     }
+    main { max-width: 34rem; padding: 2rem; }
     a { color: #27272a; font-weight: 800; }
   </style>
 </head>
@@ -76,7 +76,7 @@ exports.handler = async (event) => {
   <main>
     <h1>Score ${String(score).padStart(3, "0")}</h1>
     <p>${escapeHtml(description)}</p>
-    <p><a href="/">Main sekarang</a></p>
+    <p><a href="/">Buka game Aidiladha</a></p>
   </main>
 </body>
 </html>`
