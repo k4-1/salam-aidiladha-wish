@@ -6,7 +6,7 @@
   <title>Salam Aidiladha</title>
   <meta name="description" content="Kad ucapan Aidiladha interaktif dengan mini game lembu lompat pagar.">
   <meta name="theme-color" content="#f7f7f7">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="only light">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Salam Aidiladha">
@@ -30,7 +30,7 @@
   <link rel="manifest" href="/site.webmanifest">
   <style>
     :root {
-      color-scheme: light;
+      color-scheme: only light;
       --ink: #343536;
       --paper: #f7f7f7;
       --soft: #8d8d8d;
@@ -63,6 +63,7 @@
       color: var(--ink);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       overflow-x: hidden;
+      forced-color-adjust: none;
       -webkit-font-smoothing: none;
       text-rendering: geometricPrecision;
     }
@@ -187,7 +188,7 @@
     .controls {
       display: grid;
       place-items: center;
-      gap: 8px;
+      gap: 0;
       min-height: clamp(96px, 13svh, 122px);
     }
 
@@ -222,7 +223,7 @@
     }
 
     .credit {
-      margin: 0;
+      margin: 14px 0 0;
       color: var(--zinc-light);
       font-size: clamp(0.62rem, 2.6vw, 0.78rem);
       line-height: 1.2;
