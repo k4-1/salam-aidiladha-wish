@@ -19,7 +19,7 @@ const requiredHtml = [
   'Built by <a href="https://haikalfadzli.cekap.work"',
   'id="shareButton"',
   'const ANALYTICS = {',
-  'WEBSITE_ID: "", // Paste your Umami Website ID here to enable analytics.',
+  'WEBSITE_ID: "f3d1da0f-9854-4db7-ae75-9e3d190e7648"',
   'SCRIPT_SRC: "https://cloud.umami.is/script.js"',
   'function installAnalytics()',
   'script.dataset.websiteId = ANALYTICS.WEBSITE_ID.trim()',
