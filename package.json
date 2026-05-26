@@ -1,0 +1,11 @@
+{
+  "name": "salam-aidiladha-wish",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Single-file Aidiladha pixel runner wishing card.",
+  "scripts": {
+    "start": "python3 -m http.server 4173",
+    "build": "node -e \"require('fs').accessSync('index.html'); console.log('Static Netlify build ready')\"",
+    "deploy": "npx netlify deploy --prod --dir=."
+  }
+}
