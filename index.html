@@ -189,10 +189,19 @@
       display: grid;
       place-items: center;
       gap: 0;
-      min-height: clamp(96px, 13svh, 122px);
+      min-height: clamp(128px, 17svh, 156px);
     }
 
-    .jump-button {
+    .action-row {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .jump-button,
+    .share-button {
       width: min(24vw, 104px);
       height: min(24vw, 104px);
       min-width: 78px;
@@ -212,18 +221,30 @@
       user-select: none;
     }
 
-    .jump-button:active {
+    .share-button {
+      width: min(20vw, 82px);
+      height: min(20vw, 82px);
+      min-width: 64px;
+      min-height: 64px;
+      border-width: 3px;
+      box-shadow: 0 5px 0 var(--line);
+      font-size: 0.68rem;
+    }
+
+    .jump-button:active,
+    .share-button:active {
       transform: translateY(5px);
       box-shadow: 0 2px 0 var(--line);
     }
 
-    .jump-button:focus-visible {
+    .jump-button:focus-visible,
+    .share-button:focus-visible {
       outline: 4px solid var(--soft);
       outline-offset: 5px;
     }
 
     .credit {
-      margin: 14px 0 0;
+      margin: 24px 0 0;
       color: var(--zinc-light);
       font-size: clamp(0.62rem, 2.6vw, 0.78rem);
       line-height: 1.2;
@@ -313,7 +334,10 @@
     </section>
 
     <section class="controls" aria-label="Kawalan permainan">
-      <button id="jumpButton" class="jump-button" type="button" aria-label="Lompatkan lembu">Lompat</button>
+      <div class="action-row">
+        <button id="jumpButton" class="jump-button" type="button" aria-label="Lompatkan lembu">Lompat</button>
+        <button id="shareButton" class="share-button" type="button" aria-label="Kongsi gambar rekod">Kongsi</button>
+      </div>
       <p class="credit">Built by <a href="https://haikalfadzli.cekap.work" target="_blank" rel="noopener noreferrer">Haikal Fadzli</a></p>
     </section>
 
@@ -413,6 +437,7 @@
       const statusText = document.getElementById("statusText");
       const gameMessage = document.getElementById("gameMessage");
       const jumpButton = document.getElementById("jumpButton");
+      const shareButton = document.getElementById("shareButton");
 
       const game = {
         score: 0,
@@ -768,6 +793,95 @@
         }
       }
 
+      function writeSnapshotText(snapshotCtx, text, x, y, size, weight = 700, color = PALETTE.INK, align = "center") {
+        snapshotCtx.fillStyle = color;
+        snapshotCtx.font = `${weight} ${size}px ui-monospace, Menlo, Consolas, monospace`;
+        snapshotCtx.textAlign = align;
+        snapshotCtx.textBaseline = "top";
+        snapshotCtx.fillText(text, x, y);
+      }
+
+      function canvasToBlob(targetCanvas) {
+        return new Promise((resolve) => {
+          targetCanvas.toBlob((blob) => resolve(blob), "image/png", 1);
+        });
+      }
+
+      async function createRecordSnapshot() {
+        const snapshot = document.createElement("canvas");
+        const snapshotCtx = snapshot.getContext("2d");
+        snapshot.width = 1080;
+        snapshot.height = 1920;
+        snapshotCtx.imageSmoothingEnabled = false;
+
+        snapshotCtx.fillStyle = PALETTE.SKY;
+        snapshotCtx.fillRect(0, 0, snapshot.width, snapshot.height);
+        snapshotCtx.strokeStyle = PALETTE.INK;
+        snapshotCtx.lineWidth = 12;
+        snapshotCtx.strokeRect(48, 48, 984, 1824);
+
+        writeSnapshotText(snapshotCtx, "SALAM AIDILADHA", 540, 142, 60, 900, PALETTE.TITLE);
+        writeSnapshotText(snapshotCtx, "KEPADA SELURUH UMAT ISLAM", 540, 228, 28, 700, PALETTE.SOFT);
+        writeSnapshotText(snapshotCtx, "SCORE", 540, 330, 30, 700, PALETTE.SOFT);
+        writeSnapshotText(snapshotCtx, String(game.score).padStart(3, "0"), 540, 382, 132, 900, PALETTE.TITLE);
+        writeSnapshotText(snapshotCtx, `MISS ${game.missStreak}/${CONFIG.MISS_LIMIT}`, 540, 532, 30, 700, PALETTE.SOFT);
+
+        snapshotCtx.drawImage(canvas, 90, 650, 900, 650);
+        snapshotCtx.strokeStyle = PALETTE.MIST;
+        snapshotCtx.lineWidth = 6;
+        snapshotCtx.strokeRect(90, 650, 900, 650);
+
+        writeSnapshotText(snapshotCtx, "LEMBU LOMPAT PAGAR", 540, 1398, 34, 800, PALETTE.INK);
+        writeSnapshotText(snapshotCtx, "KAD UCAPAN INTERAKTIF", 540, 1460, 28, 700, PALETTE.SOFT);
+        writeSnapshotText(snapshotCtx, "BUILT BY HAIKAL FADZLI", 540, 1718, 26, 800, PALETTE.SOFT);
+        writeSnapshotText(snapshotCtx, "haikalfadzli.cekap.work", 540, 1762, 24, 700, PALETTE.INK);
+
+        return canvasToBlob(snapshot);
+      }
+
+      function downloadRecordSnapshot(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `salam-aidiladha-score-${game.score}.png`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      async function shareRecord() {
+        shareButton.disabled = true;
+        shareButton.textContent = "...";
+
+        try {
+          const blob = await createRecordSnapshot();
+          if (!blob) {
+            throw new Error("Snapshot image could not be created.");
+          }
+
+          const file = new File([blob], `salam-aidiladha-score-${game.score}.png`, { type: "image/png" });
+          const shareData = {
+            title: "Salam Aidiladha",
+            text: `Saya dapat score ${game.score} dalam kad Aidiladha ni.`,
+            files: [file]
+          };
+
+          if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+            await navigator.share(shareData);
+          } else {
+            downloadRecordSnapshot(blob);
+          }
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            statusText.textContent = "Gambar rekod dimuat turun untuk dikongsi.";
+          }
+        } finally {
+          shareButton.disabled = false;
+          shareButton.textContent = "Kongsi";
+        }
+      }
+
       function frame(now) {
         if (!game.lastTime) {
           game.lastTime = now;
@@ -781,6 +895,7 @@
       }
 
       jumpButton.addEventListener("click", jumpCow);
+      shareButton.addEventListener("click", shareRecord);
       canvas.addEventListener("click", jumpCow);
       window.addEventListener("keydown", (event) => {
         if (event.code === "Space" || event.code === "ArrowUp") {
@@ -798,7 +913,9 @@
         registerFenceClear,
         chaserX,
         updateGame,
-        resetGame
+        resetGame,
+        createRecordSnapshot,
+        shareRecord
       };
 
       renderPixelHeadline();

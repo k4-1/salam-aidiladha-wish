@@ -13,7 +13,10 @@ const requiredHtml = [
   '<link rel="canonical" href="https://salam-aidiladha-wish.netlify.app/">',
   '<link rel="manifest" href="/site.webmanifest">',
   '<link rel="icon" href="/icon.svg"',
-  'Built by <a href="https://haikalfadzli.cekap.work"'
+  'Built by <a href="https://haikalfadzli.cekap.work"',
+  'id="shareButton"',
+  'async function createRecordSnapshot()',
+  'async function shareRecord()'
 ];
 
 for (const fragment of requiredHtml) {
