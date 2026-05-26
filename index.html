@@ -4,6 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Salam Aidiladha</title>
+  <meta name="description" content="Kad ucapan Aidiladha interaktif dengan mini game lembu lompat pagar.">
+  <meta name="theme-color" content="#f7f7f7">
+  <meta name="color-scheme" content="light">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Salam Aidiladha">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="canonical" href="https://salam-aidiladha-wish.netlify.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ms_MY">
+  <meta property="og:url" content="https://salam-aidiladha-wish.netlify.app/">
+  <meta property="og:title" content="SALAM AIDILADHA">
+  <meta property="og:description" content="Kad ucapan interaktif dengan mini game lembu lompat pagar.">
+  <meta property="og:image" content="https://salam-aidiladha-wish.netlify.app/og-image.svg">
+  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SALAM AIDILADHA">
+  <meta name="twitter:description" content="Kad ucapan interaktif dengan mini game lembu lompat pagar.">
+  <meta name="twitter:image" content="https://salam-aidiladha-wish.netlify.app/og-image.svg">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="manifest" href="/site.webmanifest">
   <style>
     :root {
       color-scheme: light;
@@ -163,7 +187,8 @@
     .controls {
       display: grid;
       place-items: center;
-      min-height: clamp(72px, 11svh, 92px);
+      gap: 8px;
+      min-height: clamp(96px, 13svh, 122px);
     }
 
     .jump-button {
@@ -194,6 +219,27 @@
     .jump-button:focus-visible {
       outline: 4px solid var(--soft);
       outline-offset: 5px;
+    }
+
+    .credit {
+      margin: 0;
+      color: var(--zinc-light);
+      font-size: clamp(0.62rem, 2.6vw, 0.78rem);
+      line-height: 1.2;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .credit a {
+      color: var(--zinc-bold);
+      font-weight: 800;
+      text-decoration: none;
+      border-bottom: 2px solid var(--quiet);
+    }
+
+    .credit a:focus-visible {
+      outline: 3px solid var(--soft);
+      outline-offset: 4px;
     }
 
     .sr-status {
@@ -267,6 +313,7 @@
 
     <section class="controls" aria-label="Kawalan permainan">
       <button id="jumpButton" class="jump-button" type="button" aria-label="Lompatkan lembu">Lompat</button>
+      <p class="credit">Built by <a href="https://haikalfadzli.cekap.work" target="_blank" rel="noopener noreferrer">Haikal Fadzli</a></p>
     </section>
 
     <p id="statusText" class="sr-status" aria-live="polite">Score 0. Miss streak 0 of 5.</p>

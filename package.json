@@ -5,7 +5,7 @@
   "description": "Single-file Aidiladha pixel runner wishing card.",
   "scripts": {
     "start": "python3 -m http.server 4173",
-    "build": "node -e \"require('fs').accessSync('index.html'); console.log('Static Netlify build ready')\"",
+    "build": "node scripts/validate-static.js",
     "deploy": "npx netlify deploy --prod --dir=."
   }
 }
