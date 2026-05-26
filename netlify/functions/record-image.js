@@ -122,6 +122,7 @@ function text(data, value, centerX, y, scale, color) {
 }
 
 function outlinedText(data, value, centerX, y, scale, color, outlineColor) {
+  const outlineStep = Math.max(4, Math.round(scale / 2));
   const offsets = [
     [-1, 0],
     [1, 0],
@@ -134,39 +135,44 @@ function outlinedText(data, value, centerX, y, scale, color, outlineColor) {
   ];
 
   for (const [offsetX, offsetY] of offsets) {
-    text(data, value, centerX + offsetX * scale, y + offsetY * scale, scale, outlineColor);
+    text(data, value, centerX + offsetX * outlineStep, y + offsetY * outlineStep, scale, outlineColor);
   }
 
   text(data, value, centerX, y, scale, color);
 }
 
 function drawPreviewCow(data, x, y) {
-  rect(data, x + 10, y + 58, 190, 88, COLORS.ink);
-  rect(data, x + 44, y + 34, 132, 34, COLORS.ink);
-  rect(data, x + 200, y + 42, 78, 76, COLORS.ink);
-  rect(data, x + 226, y + 82, 60, 30, COLORS.ink);
-  rect(data, x + 178, y + 44, 24, 24, COLORS.ink);
-  rect(data, x + 270, y + 38, 24, 26, COLORS.ink);
-  rect(data, x - 10, y + 70, 26, 8, COLORS.ink);
-  rect(data, x - 22, y + 58, 12, 16, COLORS.ink);
-  rect(data, x - 30, y + 46, 10, 16, COLORS.ink);
-  rect(data, x + 206, y + 20, 12, 30, COLORS.ink);
-  rect(data, x + 190, y + 10, 30, 12, COLORS.ink);
-  rect(data, x + 184, y + 18, 12, 16, COLORS.ink);
-  rect(data, x + 252, y + 20, 12, 30, COLORS.ink);
-  rect(data, x + 252, y + 10, 30, 12, COLORS.ink);
-  rect(data, x + 278, y + 18, 12, 16, COLORS.ink);
-  rect(data, x + 224, y + 62, 10, 10, COLORS.paper);
-  rect(data, x + 46, y + 72, 48, 28, COLORS.paper);
-  rect(data, x + 112, y + 62, 42, 32, COLORS.paper);
-  rect(data, x + 154, y + 104, 28, 18, COLORS.paper);
-  rect(data, x + 70, y + 136, 38, 20, COLORS.soft);
-  rect(data, x + 48, y + 146, 24, 58, COLORS.ink);
-  rect(data, x + 170, y + 146, 24, 58, COLORS.ink);
-  rect(data, x + 92, y + 144, 22, 44, COLORS.ink);
-  rect(data, x + 136, y + 144, 22, 44, COLORS.ink);
-  rect(data, x + 38, y + 202, 48, 14, COLORS.ink);
-  rect(data, x + 162, y + 202, 48, 14, COLORS.ink);
+  const unit = 3;
+  const block = (dx, dy, w, h, color) => rect(data, x + dx * unit, y + dy * unit, w * unit, h * unit, color);
+
+  block(7, 23, 64, 33, COLORS.ink);
+  block(18, 15, 46, 12, COLORS.ink);
+  block(15, 55, 9, 19, COLORS.ink);
+  block(60, 55, 9, 19, COLORS.ink);
+  block(30, 54, 8, 16, COLORS.ink);
+  block(47, 54, 8, 16, COLORS.ink);
+  block(13, 73, 16, 5, COLORS.ink);
+  block(56, 73, 16, 5, COLORS.ink);
+  block(2, 20, 12, 3, COLORS.ink);
+  block(-2, 17, 5, 5, COLORS.ink);
+  block(-5, 13, 5, 6, COLORS.ink);
+  block(60, 18, 28, 28, COLORS.ink);
+  block(70, 32, 22, 11, COLORS.ink);
+  block(52, 19, 10, 11, COLORS.ink);
+  block(87, 17, 10, 11, COLORS.ink);
+  block(60, 6, 5, 13, COLORS.ink);
+  block(52, 1, 13, 5, COLORS.ink);
+  block(50, 4, 5, 7, COLORS.ink);
+  block(80, 6, 5, 13, COLORS.ink);
+  block(82, 1, 13, 5, COLORS.ink);
+  block(93, 4, 5, 7, COLORS.ink);
+  block(73, 24, 4, 4, COLORS.paper);
+  block(22, 30, 18, 11, COLORS.paper);
+  block(48, 25, 15, 13, COLORS.paper);
+  block(65, 40, 9, 7, COLORS.paper);
+  block(40, 53, 15, 7, COLORS.soft);
+  block(42, 60, 3, 4, COLORS.soft);
+  block(51, 60, 3, 4, COLORS.soft);
 }
 
 function drawPreviewFence(data, x, y) {
@@ -178,7 +184,7 @@ function drawPreviewFence(data, x, y) {
 
 function drawScene(data) {
   rect(data, 110, 454, 980, 6, COLORS.ink);
-  drawPreviewCow(data, 58, 238);
+  drawPreviewCow(data, 72, 220);
   drawPreviewFence(data, 880, 368);
 }
 
@@ -234,7 +240,7 @@ exports.handler = async (event) => {
   const data = createCanvas();
 
   text(data, "SALAM AIDILADHA", 600, 82, 10, COLORS.title);
-  text(data, "SCORE SAYA", 600, 172, 6, COLORS.soft);
+  text(data, "SCORE SAYA", 600, 158, 6, COLORS.soft);
   drawScene(data);
   outlinedText(data, paddedScore, 600, 232, 28, COLORS.title, COLORS.paper);
   text(data, "SEKARANG SAYA CHALLENGE AWAK", 600, 516, 5, COLORS.title);

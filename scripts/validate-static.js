@@ -37,7 +37,11 @@ const requiredHtml = [
 ];
 
 const requiredRecordImage = [
-  'drawPreviewCow(data, 58, 238)',
+  'const unit = 3',
+  'block(7, 23, 64, 33, COLORS.ink)',
+  'block(60, 18, 28, 28, COLORS.ink)',
+  'drawPreviewCow(data, 72, 220)',
+  'text(data, "SCORE SAYA", 600, 158, 6, COLORS.soft)',
   'drawPreviewFence(data, 880, 368)'
 ];
 
