@@ -1,6 +1,17 @@
 [build]
   command = "npm run build"
   publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/record"
+  to = "/.netlify/functions/record"
+  status = 200
+
+[[redirects]]
+  from = "/record-image.svg"
+  to = "/.netlify/functions/record-image"
+  status = 200
 
 [[headers]]
   for = "/*"

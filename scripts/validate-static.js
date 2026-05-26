@@ -1,6 +1,7 @@
 const fs = require("fs");
 
 const html = fs.readFileSync("index.html", "utf8");
+const netlifyConfig = fs.readFileSync("netlify.toml", "utf8");
 const requiredHtml = [
   '<meta name="description"',
   '<meta name="theme-color"',
@@ -16,12 +17,21 @@ const requiredHtml = [
   'Built by <a href="https://haikalfadzli.cekap.work"',
   'id="shareButton"',
   'async function createRecordSnapshot()',
-  'async function shareRecord()',
+  'async function shareRecordLink()',
   'function shareCaption()',
-  'text: shareCaption()',
-  'navigator.clipboard.writeText(shareCaption())',
+  'function recordShareUrl()',
+  'url: recordShareUrl()',
+  'navigator.clipboard.writeText(`${shareCaption()}\\n${recordShareUrl()}`)',
   'JOM CUBA GAME INI',
   'KONGSI SCORE ANDA JUGA'
+];
+
+const requiredNetlifyConfig = [
+  'functions = "netlify/functions"',
+  'from = "/record"',
+  'to = "/.netlify/functions/record"',
+  'from = "/record-image.svg"',
+  'to = "/.netlify/functions/record-image"'
 ];
 
 for (const fragment of requiredHtml) {
@@ -30,7 +40,19 @@ for (const fragment of requiredHtml) {
   }
 }
 
-for (const asset of ["site.webmanifest", "icon.svg", "og-image.svg"]) {
+for (const fragment of requiredNetlifyConfig) {
+  if (!netlifyConfig.includes(fragment)) {
+    throw new Error(`Missing required Netlify config: ${fragment}`);
+  }
+}
+
+for (const asset of [
+  "site.webmanifest",
+  "icon.svg",
+  "og-image.svg",
+  "netlify/functions/record.js",
+  "netlify/functions/record-image.js"
+]) {
   fs.accessSync(asset, fs.constants.R_OK);
 }
 

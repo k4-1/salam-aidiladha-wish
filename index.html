@@ -330,7 +330,7 @@
     <section class="controls" aria-label="Kawalan permainan">
       <div class="action-row">
         <button id="jumpButton" class="jump-button" type="button" aria-label="Lompatkan lembu">Lompat</button>
-        <button id="shareButton" class="share-button is-hidden" type="button" aria-label="Kongsi gambar rekod" disabled>Kongsi</button>
+        <button id="shareButton" class="share-button is-hidden" type="button" aria-label="Kongsi link rekod" disabled>Kongsi</button>
       </div>
       <p class="credit">Built by <a href="https://haikalfadzli.cekap.work" target="_blank" rel="noopener noreferrer">Haikal Fadzli</a></p>
     </section>
@@ -808,7 +808,13 @@
       }
 
       function shareCaption() {
-        return `Saya dapat score ${game.score} dalam game kad Aidiladha ni.\n\nJom cuba game kad Aidiladha ni dan kongsi score anda juga.\n${SHARE_URL}`;
+        return `Saya dapat score ${game.score} dalam game kad Aidiladha ni.\n\nJom cuba kalahkan score saya dan kongsi score anda juga.`;
+      }
+
+      function recordShareUrl() {
+        const score = encodeURIComponent(game.score);
+        const miss = encodeURIComponent(game.missStreak);
+        return `${SHARE_URL}record?score=${score}&miss=${miss}`;
       }
 
       async function copyShareCaption() {
@@ -817,7 +823,7 @@
         }
 
         try {
-          await navigator.clipboard.writeText(shareCaption());
+          await navigator.clipboard.writeText(`${shareCaption()}\n${recordShareUrl()}`);
         } catch {
           // Some browsers only allow clipboard writes in narrower gesture windows.
         }
@@ -904,6 +910,34 @@
         }
       }
 
+      async function shareRecordLink() {
+        shareButton.disabled = true;
+        shareButton.textContent = "...";
+
+        try {
+          await copyShareCaption();
+
+          const shareData = {
+            title: "Salam Aidiladha",
+            text: shareCaption(),
+            url: recordShareUrl()
+          };
+
+          if (navigator.share) {
+            await navigator.share(shareData);
+          } else {
+            window.location.href = recordShareUrl();
+          }
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            window.location.href = recordShareUrl();
+          }
+        } finally {
+          shareButton.disabled = false;
+          shareButton.textContent = "Kongsi";
+        }
+      }
+
       function frame(now) {
         if (!game.lastTime) {
           game.lastTime = now;
@@ -917,7 +951,7 @@
       }
 
       jumpButton.addEventListener("click", jumpCow);
-      shareButton.addEventListener("click", shareRecord);
+      shareButton.addEventListener("click", shareRecordLink);
       canvas.addEventListener("click", jumpCow);
       window.addEventListener("keydown", (event) => {
         if (event.code === "Space" || event.code === "ArrowUp") {
@@ -937,7 +971,9 @@
         updateGame,
         resetGame,
         createRecordSnapshot,
-        shareRecord
+        shareRecord,
+        recordShareUrl,
+        shareRecordLink
       };
 
       renderPixelHeadline();
