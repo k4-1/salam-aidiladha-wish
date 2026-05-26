@@ -11,6 +11,7 @@ const COLORS = {
 
 const GLYPHS = {
   " ": ["000", "000", "000", "000", "000", "000", "000"],
+  "!": ["1", "1", "1", "1", "1", "0", "1"],
   ".": ["0", "0", "0", "0", "0", "0", "1"],
   "-": ["000", "000", "000", "111", "000", "000", "000"],
   "/": ["00001", "00010", "00010", "00100", "01000", "01000", "10000"],
@@ -186,17 +187,15 @@ function encodePng(data) {
 exports.handler = async (event) => {
   const params = event.queryStringParameters || {};
   const score = cleanNumber(params.score, 0, 999);
-  const miss = cleanNumber(params.miss, 0, 5);
   const paddedScore = String(score).padStart(3, "0");
   const data = createCanvas();
 
-  strokeRect(data, 48, 48, 1104, 534, 10, COLORS.ink);
-  text(data, "SALAM AIDILADHA", 600, 106, 10, COLORS.title);
-  text(data, "SCORE ANDA", 600, 188, 6, COLORS.soft);
-  text(data, paddedScore, 600, 246, 28, COLORS.title);
-  text(data, `MISS ${miss}/5`, 600, 438, 5, COLORS.soft);
-  text(data, "JOM CUBA KALAHKAN SCORE SAYA", 600, 512, 5, COLORS.title);
-  text(data, "SALAM-AIDILADHA-WISH.NETLIFY.APP", 600, 558, 2, COLORS.soft);
+  text(data, "SALAM AIDILADHA", 600, 82, 10, COLORS.title);
+  text(data, "SCORE SAYA", 600, 172, 6, COLORS.soft);
+  text(data, paddedScore, 600, 232, 28, COLORS.title);
+  drawScene(data);
+  text(data, "SEKARANG SAYA CHALLENGE AWAK", 600, 516, 5, COLORS.title);
+  text(data, "LARI DARI ORANG MASJID!!", 600, 560, 5, COLORS.soft);
 
   return {
     statusCode: 200,

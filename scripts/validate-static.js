@@ -7,11 +7,11 @@ const requiredHtml = [
   '<meta name="theme-color"',
   '<meta property="og:title"',
   '<meta property="og:description"',
-  '<meta property="og:image" content="https://salam-aidiladha-wish.netlify.app/og-image.svg">',
-  '<meta property="og:url" content="https://salam-aidiladha-wish.netlify.app/">',
+  '<meta property="og:image" content="https://salam-aidiladha.netlify.app/og-image.svg">',
+  '<meta property="og:url" content="https://salam-aidiladha.netlify.app/">',
   '<meta name="twitter:card"',
-  '<meta name="twitter:image" content="https://salam-aidiladha-wish.netlify.app/og-image.svg">',
-  '<link rel="canonical" href="https://salam-aidiladha-wish.netlify.app/">',
+  '<meta name="twitter:image" content="https://salam-aidiladha.netlify.app/og-image.svg">',
+  '<link rel="canonical" href="https://salam-aidiladha.netlify.app/">',
   '<link rel="manifest" href="/site.webmanifest">',
   '<link rel="icon" href="/icon.svg"',
   'Built by <a href="https://haikalfadzli.cekap.work"',
@@ -22,8 +22,8 @@ const requiredHtml = [
   'function recordShareUrl()',
   'url: recordShareUrl()',
   'navigator.clipboard.writeText(`${shareCaption()}\\n${recordShareUrl()}`)',
-  'JOM CUBA GAME INI',
-  'KONGSI SCORE ANDA JUGA'
+  'SEKARANG SAYA CHALLENGE AWAK',
+  'LARI DARI ORANG MASJID!!'
 ];
 
 const requiredNetlifyConfig = [

@@ -11,20 +11,20 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Salam Aidiladha">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="canonical" href="https://salam-aidiladha-wish.netlify.app/">
+  <link rel="canonical" href="https://salam-aidiladha.netlify.app/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ms_MY">
-  <meta property="og:url" content="https://salam-aidiladha-wish.netlify.app/">
+  <meta property="og:url" content="https://salam-aidiladha.netlify.app/">
   <meta property="og:title" content="SALAM AIDILADHA">
   <meta property="og:description" content="Kad ucapan interaktif dengan mini game lembu lompat pagar.">
-  <meta property="og:image" content="https://salam-aidiladha-wish.netlify.app/og-image.svg">
+  <meta property="og:image" content="https://salam-aidiladha.netlify.app/og-image.svg">
   <meta property="og:image:type" content="image/svg+xml">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="SALAM AIDILADHA">
   <meta name="twitter:description" content="Kad ucapan interaktif dengan mini game lembu lompat pagar.">
-  <meta name="twitter:image" content="https://salam-aidiladha-wish.netlify.app/og-image.svg">
+  <meta name="twitter:image" content="https://salam-aidiladha.netlify.app/og-image.svg">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icon.svg">
   <link rel="manifest" href="/site.webmanifest">
@@ -372,7 +372,7 @@
         LAND: "#4b4c4d"
       };
 
-      const SHARE_URL = `${window.location.origin}/`;
+      const SHARE_URL = "https://salam-aidiladha.netlify.app/";
 
       const PIXEL_FONT = {
         A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
@@ -808,13 +808,12 @@
       }
 
       function shareCaption() {
-        return `Saya dapat score ${game.score} dalam game kad Aidiladha ni.\n\nJom cuba kalahkan score saya dan kongsi score anda juga.`;
+        return `Selamat Hari Raya Aidiladha. Semoga ibadah korban dan semangat pengorbanan kita pada tahun ini membawa keberkatan, keampunan, dan kebahagiaan yang berpanjangan buat kita sekeluarga.\n\nSaya dapat score ${game.score} dalam game kad Aidiladha, dan sekarang saya challenge kamu untuk beat score saya.\n\nJom cuba kalahkan score saya dan kongsi score anda juga.\n${SHARE_URL}`;
       }
 
       function recordShareUrl() {
         const score = encodeURIComponent(game.score);
-        const miss = encodeURIComponent(game.missStreak);
-        return `${SHARE_URL}record?score=${score}&miss=${miss}`;
+        return `${SHARE_URL}record?score=${score}`;
       }
 
       async function copyShareCaption() {
@@ -846,7 +845,6 @@
         writeSnapshotText(snapshotCtx, "KEPADA SELURUH UMAT ISLAM", 540, 228, 28, 700, PALETTE.SOFT);
         writeSnapshotText(snapshotCtx, "SCORE", 540, 330, 30, 700, PALETTE.SOFT);
         writeSnapshotText(snapshotCtx, String(game.score).padStart(3, "0"), 540, 382, 132, 900, PALETTE.TITLE);
-        writeSnapshotText(snapshotCtx, `MISS ${game.missStreak}/${CONFIG.MISS_LIMIT}`, 540, 532, 30, 700, PALETTE.SOFT);
 
         snapshotCtx.drawImage(canvas, 90, 650, 900, 650);
         snapshotCtx.strokeStyle = PALETTE.MIST;
@@ -855,9 +853,8 @@
 
         writeSnapshotText(snapshotCtx, "LEMBU LOMPAT PAGAR", 540, 1398, 34, 800, PALETTE.INK);
         writeSnapshotText(snapshotCtx, "KAD UCAPAN INTERAKTIF", 540, 1460, 28, 700, PALETTE.SOFT);
-        writeSnapshotText(snapshotCtx, "JOM CUBA GAME INI", 540, 1538, 30, 900, PALETTE.INK);
-        writeSnapshotText(snapshotCtx, "salam-aidiladha-wish.netlify.app", 540, 1590, 24, 800, PALETTE.INK);
-        writeSnapshotText(snapshotCtx, "KONGSI SCORE ANDA JUGA", 540, 1632, 24, 800, PALETTE.SOFT);
+        writeSnapshotText(snapshotCtx, "SEKARANG SAYA CHALLENGE AWAK", 540, 1538, 26, 900, PALETTE.INK);
+        writeSnapshotText(snapshotCtx, "LARI DARI ORANG MASJID!!", 540, 1588, 26, 800, PALETTE.SOFT);
         writeSnapshotText(snapshotCtx, "BUILT BY HAIKAL FADZLI", 540, 1718, 26, 800, PALETTE.SOFT);
         writeSnapshotText(snapshotCtx, "haikalfadzli.cekap.work", 540, 1762, 24, 700, PALETTE.INK);
 
