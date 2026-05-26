@@ -373,6 +373,11 @@
       };
 
       const SHARE_URL = "https://salam-aidiladha.netlify.app/";
+      const ANALYTICS = {
+        WEBSITE_ID: "", // Paste your Umami Website ID here to enable analytics.
+        SCRIPT_SRC: "https://cloud.umami.is/script.js",
+        DOMAIN: "salam-aidiladha.netlify.app"
+      };
 
       const PIXEL_FONT = {
         A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
@@ -434,12 +439,14 @@
       const gameMessage = document.getElementById("gameMessage");
       const jumpButton = document.getElementById("jumpButton");
       const shareButton = document.getElementById("shareButton");
+      const analyticsQueue = [];
 
       const game = {
         score: 0,
         missStreak: 0,
         successStreak: 0,
         shakeTimer: 0,
+        started: false,
         visualChaserX: 86,
         running: true,
         lastTime: 0,
@@ -485,6 +492,87 @@
         statusText.textContent = `Score ${game.score}. Miss streak ${game.missStreak} of ${CONFIG.MISS_LIMIT}.`;
       }
 
+      function analyticsEnabled() {
+        return Boolean(ANALYTICS.WEBSITE_ID.trim());
+      }
+
+      function installAnalytics() {
+        if (!analyticsEnabled()) {
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.defer = true;
+        script.src = ANALYTICS.SCRIPT_SRC;
+        script.dataset.websiteId = ANALYTICS.WEBSITE_ID.trim();
+        script.dataset.domains = ANALYTICS.DOMAIN;
+        script.addEventListener("load", flushAnalyticsQueue);
+        document.head.appendChild(script);
+      }
+
+      function sendAnalyticsEvent(eventName, data) {
+        window.umami.track(eventName, data);
+      }
+
+      function flushAnalyticsQueue() {
+        if (typeof window.umami?.track !== "function") {
+          return;
+        }
+
+        while (analyticsQueue.length > 0) {
+          const { eventName, data } = analyticsQueue.shift();
+          sendAnalyticsEvent(eventName, data);
+        }
+      }
+
+      function trackAnalytics(eventName, data = {}) {
+        if (!analyticsEnabled()) {
+          return;
+        }
+
+        if (typeof window.umami?.track === "function") {
+          sendAnalyticsEvent(eventName, data);
+          return;
+        }
+
+        if (analyticsQueue.length < 8) {
+          analyticsQueue.push({ eventName, data });
+        }
+      }
+
+      function trackAnalyticsOnce(eventName, data = {}) {
+        const key = `aidiladha.analytics.${eventName}`;
+
+        try {
+          if (sessionStorage.getItem(key)) {
+            return;
+          }
+
+          sessionStorage.setItem(key, "1");
+        } catch {
+          // Private browsing can block sessionStorage; still allow the event.
+        }
+
+        trackAnalytics(eventName, data);
+      }
+
+      function scoreBucket(score) {
+        if (score < 5) return "0-4";
+        if (score < 10) return "5-9";
+        if (score < 20) return "10-19";
+        if (score < 50) return "20-49";
+        return "50+";
+      }
+
+      function markGameStarted() {
+        if (game.started) {
+          return;
+        }
+
+        game.started = true;
+        trackAnalyticsOnce("game_start");
+      }
+
       function jumpCow() {
         if (!game.running) {
           resetGame();
@@ -492,6 +580,7 @@
         }
 
         if (game.cow.grounded) {
+          markGameStarted();
           game.cow.vy = CONFIG.JUMP_FORCE;
           game.cow.grounded = false;
         }
@@ -514,6 +603,10 @@
 
         if (game.missStreak >= CONFIG.MISS_LIMIT) {
           game.running = false;
+          trackAnalytics("game_over", {
+            score: game.score,
+            score_bucket: scoreBucket(game.score)
+          });
           gameMessage.textContent = "Lembu tertangkap. Tap Cuba untuk cuba lagi.";
           gameMessage.classList.add("is-visible");
           jumpButton.textContent = "Cuba";
@@ -527,6 +620,7 @@
         game.missStreak = 0;
         game.successStreak = 0;
         game.shakeTimer = 0;
+        game.started = false;
         game.visualChaserX = chaserX();
         game.running = true;
         game.spawnTimer = 0.8;
@@ -936,6 +1030,10 @@
         try {
           const shareUrl = recordShareUrl();
           const captionText = shareCaptionText();
+          trackAnalytics("share_score", {
+            score: game.score,
+            score_bucket: scoreBucket(game.score)
+          });
           await copyShareCaption(shareCaption(shareUrl));
 
           const shareData = {
@@ -985,9 +1083,13 @@
       window.__aidiladhaGame = {
         game,
         CONFIG,
+        ANALYTICS,
         jumpCow,
         registerFenceMiss,
         registerFenceClear,
+        trackAnalytics,
+        trackAnalyticsOnce,
+        scoreBucket,
         chaserX,
         updateGame,
         resetGame,
@@ -999,6 +1101,7 @@
         shareRecordLink
       };
 
+      installAnalytics();
       renderPixelHeadline();
       setCanvasSize();
       updateStatus();
