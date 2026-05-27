@@ -238,7 +238,7 @@
     }
 
     .credit {
-      margin: 24px 0 0;
+      margin: 38px 0 0;
       color: var(--zinc-light);
       font-size: clamp(0.62rem, 2.6vw, 0.78rem);
       line-height: 1.2;
@@ -348,9 +348,16 @@
         JUMP_FORCE: -760,
         FENCE_SPEED: 360,
         SPEED_GAIN: 8,
+        SPEED_SCORE_CAP: 50,
+        TOP_SCORE_LIMIT: 5,
         SPAWN_MIN: 1.05,
         SPAWN_MAX: 1.55,
         MISS_LIMIT: 5,
+        SCORE_RUSH_THRESHOLD: 300,
+        RUSH_CHASER_COUNT: 15,
+        RUSH_SPEED_BONUS: 40,
+        RUSH_SPAWN_MIN: 0.86,
+        RUSH_SPAWN_MAX: 1.22,
         HIT_SHAKE_DURATION: 0.32,
         HIT_SHAKE_DISTANCE: 14,
         CHASER_EASE: 3.8,
@@ -359,7 +366,10 @@
         COW_H: 82,
         FENCE_W: 34,
         FENCE_MIN_H: 56,
-        FENCE_MAX_H: 78
+        FENCE_MAX_H: 78,
+        RUSH_FENCE_W: 42,
+        RUSH_FENCE_MIN_H: 76,
+        RUSH_FENCE_MAX_H: 104
       };
 
       const PALETTE = {
@@ -440,6 +450,8 @@
       const jumpButton = document.getElementById("jumpButton");
       const shareButton = document.getElementById("shareButton");
       const analyticsQueue = [];
+      const SCORE_STORAGE_KEY = "aidiladha.topScores";
+      const SCORE_RANK_SIZES = [30, 26, 22, 18, 15];
 
       const game = {
         score: 0,
@@ -482,14 +494,79 @@
         ctx.imageSmoothingEnabled = false;
       }
 
-      function randomSpawnDelay() {
-        return CONFIG.SPAWN_MIN + Math.random() * (CONFIG.SPAWN_MAX - CONFIG.SPAWN_MIN);
+      function difficultyProfile(score) {
+        if (score < CONFIG.SCORE_RUSH_THRESHOLD) {
+          return {
+            chaserCount: 1,
+            speedBonus: 0,
+            spawnMin: CONFIG.SPAWN_MIN,
+            spawnMax: CONFIG.SPAWN_MAX,
+            fenceWidth: CONFIG.FENCE_W,
+            fenceMinHeight: CONFIG.FENCE_MIN_H,
+            fenceMaxHeight: CONFIG.FENCE_MAX_H
+          };
+        }
+
+        return {
+          chaserCount: CONFIG.RUSH_CHASER_COUNT,
+          speedBonus: CONFIG.RUSH_SPEED_BONUS,
+          spawnMin: CONFIG.RUSH_SPAWN_MIN,
+          spawnMax: CONFIG.RUSH_SPAWN_MAX,
+          fenceWidth: CONFIG.RUSH_FENCE_W,
+          fenceMinHeight: CONFIG.RUSH_FENCE_MIN_H,
+          fenceMaxHeight: CONFIG.RUSH_FENCE_MAX_H
+        };
+      }
+
+      function randomSpawnDelay(score = game.score) {
+        const profile = difficultyProfile(score);
+        return profile.spawnMin + Math.random() * (profile.spawnMax - profile.spawnMin);
+      }
+
+      function fenceSpeed(score) {
+        const profile = difficultyProfile(score);
+        const speedScore = Math.min(score, CONFIG.SPEED_SCORE_CAP);
+        return CONFIG.FENCE_SPEED + speedScore * CONFIG.SPEED_GAIN + profile.speedBonus;
       }
 
       function updateStatus() {
         scoreValue.textContent = String(game.score);
         dangerValue.textContent = `Miss ${game.missStreak}/${CONFIG.MISS_LIMIT}`;
         statusText.textContent = `Score ${game.score}. Miss streak ${game.missStreak} of ${CONFIG.MISS_LIMIT}.`;
+      }
+
+      function readTopScores() {
+        try {
+          const stored = JSON.parse(localStorage.getItem(SCORE_STORAGE_KEY) || "[]");
+          if (!Array.isArray(stored)) {
+            return [];
+          }
+
+          return stored
+            .map((score) => Number(score))
+            .filter((score) => Number.isFinite(score) && score >= 0)
+            .sort((a, b) => b - a)
+            .slice(0, CONFIG.TOP_SCORE_LIMIT);
+        } catch {
+          return [];
+        }
+      }
+
+      function saveTopScores(scores) {
+        try {
+          localStorage.setItem(SCORE_STORAGE_KEY, JSON.stringify(scores));
+        } catch {
+          // Storage can fail in private browsing; gameplay should continue.
+        }
+      }
+
+      function recordFinalScore(score) {
+        const scores = [...readTopScores(), score]
+          .sort((a, b) => b - a)
+          .slice(0, CONFIG.TOP_SCORE_LIMIT);
+
+        saveTopScores(scores);
+        return scores;
       }
 
       function analyticsEnabled() {
@@ -603,11 +680,15 @@
 
         if (game.missStreak >= CONFIG.MISS_LIMIT) {
           game.running = false;
+          const scores = recordFinalScore(game.score);
+          const rank = scores.indexOf(game.score) + 1;
           trackAnalytics("game_over", {
             score: game.score,
             score_bucket: scoreBucket(game.score)
           });
-          gameMessage.textContent = "Lembu tertangkap. Tap Cuba untuk cuba lagi.";
+          gameMessage.textContent = rank > 0
+            ? `Lembu tertangkap. Rank ${rank}/5 score peribadi. Tap Cuba untuk cuba lagi.`
+            : "Lembu tertangkap. Tap Cuba untuk cuba lagi.";
           gameMessage.classList.add("is-visible");
           jumpButton.textContent = "Cuba";
           shareButton.classList.remove("is-hidden");
@@ -635,12 +716,12 @@
         updateStatus();
       }
 
-      function spawnFence() {
-        const height = CONFIG.FENCE_MIN_H + Math.floor(Math.random() * (CONFIG.FENCE_MAX_H - CONFIG.FENCE_MIN_H));
+      function spawnFence(profile = difficultyProfile(game.score)) {
+        const height = profile.fenceMinHeight + Math.floor(Math.random() * (profile.fenceMaxHeight - profile.fenceMinHeight));
         game.fences.push({
           x: CONFIG.WIDTH + 20,
           y: CONFIG.GROUND_Y - height,
-          width: CONFIG.FENCE_W,
+          width: profile.fenceWidth,
           height,
           resolved: false
         });
@@ -675,10 +756,11 @@
           return;
         }
 
-        const speed = CONFIG.FENCE_SPEED + game.score * CONFIG.SPEED_GAIN;
+        const profile = difficultyProfile(game.score);
+        const speed = fenceSpeed(game.score);
         game.spawnTimer -= delta;
         if (game.spawnTimer <= 0) {
-          spawnFence();
+          spawnFence(profile);
           game.spawnTimer = randomSpawnDelay();
         }
 
@@ -837,6 +919,16 @@
         drawChasingArm(x, y, step);
       }
 
+      function drawChaserCrowd(baseX, groundY, step, count) {
+        for (let index = count - 1; index >= 0; index -= 1) {
+          const row = index % 2;
+          const x = baseX - index * 34;
+          const y = groundY + row * 6;
+          const staggeredStep = index % 2 === 0 ? step : -step;
+          drawChaser(x, y, staggeredStep);
+        }
+      }
+
       function drawFencePattern(fence) {
         ctx.fillStyle = PALETTE.INK;
         rect(fence.x, fence.y, 7, fence.height);
@@ -872,6 +964,26 @@
         drawGround(time);
       }
 
+      function drawTopScores(scores) {
+        if (scores.length === 0) {
+          return;
+        }
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = PALETTE.SOFT;
+        ctx.font = "800 15px ui-monospace, monospace";
+        ctx.fillText("TOP 5 SCORE", CONFIG.WIDTH / 2, 180);
+
+        let y = 216;
+        scores.forEach((score, index) => {
+          const size = SCORE_RANK_SIZES[index] || SCORE_RANK_SIZES[SCORE_RANK_SIZES.length - 1];
+          ctx.fillStyle = index === 0 ? PALETTE.INK : PALETTE.LAND;
+          ctx.font = `900 ${size}px ui-monospace, monospace`;
+          ctx.fillText(`${index + 1}. ${score}`, CONFIG.WIDTH / 2, y);
+          y += size + 8;
+        });
+      }
+
       function drawGame(time) {
         drawBackground(time);
 
@@ -880,7 +992,7 @@
           ? Math.round(Math.sin(time / 18) * CONFIG.HIT_SHAKE_DISTANCE * shakeProgress)
           : 0;
         const walkStep = Math.round(Math.sin(time / 95) * 5);
-        drawChaser(game.visualChaserX, CONFIG.GROUND_Y, walkStep);
+        drawChaserCrowd(game.visualChaserX, CONFIG.GROUND_Y, walkStep, difficultyProfile(game.score).chaserCount);
         ctx.save();
         ctx.translate(shake, 0);
         drawCow(game.cow.x, game.cow.y, walkStep);
@@ -896,9 +1008,10 @@
           ctx.fillStyle = PALETTE.INK;
           ctx.font = "800 34px ui-monospace, monospace";
           ctx.textAlign = "center";
-          ctx.fillText("GAME OVER", CONFIG.WIDTH / 2, 176);
+          ctx.fillText("GAME OVER", CONFIG.WIDTH / 2, 108);
           ctx.font = "700 20px ui-monospace, monospace";
-          ctx.fillText("Selamat Hari Raya Aidiladha", CONFIG.WIDTH / 2, 220);
+          ctx.fillText("Selamat Hari Raya Aidiladha", CONFIG.WIDTH / 2, 152);
+          drawTopScores(readTopScores());
           ctx.textAlign = "start";
         }
       }
@@ -1090,6 +1203,12 @@
         trackAnalytics,
         trackAnalyticsOnce,
         scoreBucket,
+        difficultyProfile,
+        fenceSpeed,
+        readTopScores,
+        saveTopScores,
+        recordFinalScore,
+        drawTopScores,
         chaserX,
         updateGame,
         resetGame,
